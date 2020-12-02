@@ -6,6 +6,6 @@ aws_infrastructuur_diagram.vsdx
 Documentatie.docx
 *.ppk
 *.pub
-*key*
+/*key*
 *.pem
-*keypair*
+
