@@ -106,7 +106,7 @@ provisioner "file" {
     "vpc_id": "${aws_vpc.Webapp_vpc.id}",
     "keypair_name": "${aws_key_pair.ssh_Jonas.key_name}",
     "ssh_user": "${var.ssh_user}",
-    "private_key_file": "/home/ubuntu/webserver_keypair.pem",
+    "private_key_file": "${var.ssh_key_bastion_host_path}",
     "ansible_playbook_file_path": "/home/ubuntu/webapp_playbook.yaml",
     "inventory_file": "~/inventory.yaml"
   }
@@ -138,7 +138,7 @@ EOF
     inline = ["sleep 210",
       "sudo apt -y update",
       "sudo apt -y install ansible",
-      "sudo chmod 600 /home/ubuntu/webserver_keypair.pem",
+      "sudo chmod 600 ${var.ssh_key_bastion_host_path}",
       "curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -",
       "sudo apt-add-repository \"deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main\"",
       "sudo apt install packer",
