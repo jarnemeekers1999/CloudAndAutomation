@@ -1,0 +1,30 @@
+{
+    "builders": [
+      {
+        "type": "amazon-ebs",
+        "ami_name": "Webserver_ami",
+        "ami_description": "Webapp_ami build by Packer",
+        "tags": {
+            "Name": "webserver_ami"
+        },
+        "source_ami": "{{user `source_ami`}}",
+        "associate_public_ip_address": "true",
+        "instance_type": "t2.micro",
+        "subnet_id": "{{user `subnet_id`}}",
+        "security_group_ids": "{{user `security_group_ids`}}",
+        "vpc_id": "{{user `vpc_id`}}",
+        "communicator": "ssh",
+        "ssh_interface": "private_ip",
+        "ssh_username": "{{user `ssh_user`}}",
+        "ssh_keypair_name": "{{user `keypair_name`}}",
+        "ssh_private_key_file": "{{user `private_key_file`}}"
+      }
+    ],
+      "provisioners": [
+          {
+              "type": "ansible",
+              "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False"],
+              "playbook_file": "{{user `ansible_playbook_file_path`}}"
+          }
+      ]
+  }

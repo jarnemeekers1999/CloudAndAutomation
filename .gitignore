@@ -1,3 +1,11 @@
 *.tfvars
-*.tfstats
+*.tfstate
 *.tfstate.backup
+terraform/.terraform/
+aws_infrastructuur_diagram.vsdx
+Documentatie.docx
+*.ppk
+*.pub
+*key*
+*.pem
+*keypair*
