@@ -134,6 +134,14 @@ resource "aws_security_group" "Webservers_security_group" {
     cidr_blocks = ["172.31.5.0/24", "172.31.6.0/24"]
   }
 
+    egress {
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    description = "NFS access from webservers to EFS"
+    security_groups = [aws_security_group.efs_mount_target_security_group.id]
+  }
+
   tags = {
     Name = "Webservers_security_group"
   }
@@ -221,5 +229,23 @@ resource "aws_security_group" "Loadbalancer_security_group" {
   }
   tags = {
     Name = "Loadbalancer_security_group"
+  }
+}
+
+resource "aws_security_group" "efs_mount_target_security_group" {
+  name        = "efs_mount_target_security_group"
+  description = "Allow NFS connections from webservers to target mount"
+  vpc_id      = aws_vpc.Webapp_vpc.id
+  
+  ingress {
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    description     = "Webservers access to efs"
+    cidr_blocks = ["172.31.3.0/24","172.31.4.0/24"]
+  }
+
+  tags = {
+    Name = "efs_mount_target_security_group"
   }
 }

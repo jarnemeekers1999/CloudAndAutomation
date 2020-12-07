@@ -15,12 +15,15 @@
           state: present
   
   tasks:
-    - name: Install apache2, php, mysql-client-core-8.0, git, php-xml, mbstring, mysqli, zip and unzip.
+    - name: Install apache2, php, mysql-client-core-8.0, nfs-common, make, binutils git, php-xml, mbstring, mysqli, zip and unzip.
       apt: 
         name: 
           - apache2 
           - php
           - mysql-client-core-8.0
+          - nfs-common
+          - make
+          - binutils
           - git
           - php-xml
           - php7.4-mbstring
@@ -28,6 +31,23 @@
           - zip
           - unzip
         state: latest
+    - name: Clone efs-utils repo.
+      git:
+        repo: https://github.com/aws/efs-utils
+        dest: /home/ubuntu/efsbuilder
+    - name: Execute build script.
+      shell: cd /home/ubuntu/efsbuilder; sh /home/ubuntu/efsbuilder/build-deb.sh
+    - name: Install amazon-efs-utils.
+      shell: apt -y install /home/ubuntu/efsbuilder/build/amazon-efs-utils*deb
+    - name: Create mount directory.
+      file:
+        path: /mnt/efs
+        mode: '0755'
+        state: directory
+    - name: Mount EFS in /etc/fstab.
+      lineinfile:
+          path: /etc/fstab
+          line: "{{ efs_id }}:/ /mnt/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
     - name: Download composer
       get_url:
         url: https://getcomposer.org/installer
