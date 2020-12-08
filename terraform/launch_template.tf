@@ -25,11 +25,6 @@ resource "aws_launch_template" "webservers_launch_template" {
     capacity_reservation_preference = "open"
   }
 
-  #TODO set-up IAM
-  /*  iam_instance_profile {
-    name = "test" #TODO IAM instance profile
-  }*/
-
   image_id                             = data.aws_ami.webserver_ami.id
   instance_initiated_shutdown_behavior = "terminate"
 

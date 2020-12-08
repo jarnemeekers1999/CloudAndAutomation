@@ -6,9 +6,11 @@
   become: true
 
   pre_tasks:
-    - name: "Update apt cache."
+    - name: Update apt cache.
       apt:
         update_cache: true
+    - name: Run apt clean and apt autoclean.
+      shell: sleep 5; apt -y clean && apt -y autoclean
     - name: Add universe repo to source list.
       apt_repository:
           repo: deb http://archive.ubuntu.com/ubuntu focal universe
@@ -39,15 +41,6 @@
       shell: cd /home/ubuntu/efsbuilder; sh /home/ubuntu/efsbuilder/build-deb.sh
     - name: Install amazon-efs-utils.
       shell: apt -y install /home/ubuntu/efsbuilder/build/amazon-efs-utils*deb
-    - name: Create mount directory.
-      file:
-        path: /mnt/efs
-        mode: '0755'
-        state: directory
-    - name: Mount EFS in /etc/fstab.
-      lineinfile:
-          path: /etc/fstab
-          line: "{{ efs_id }}:/ /mnt/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
     - name: Download composer
       get_url:
         url: https://getcomposer.org/installer
@@ -73,6 +66,19 @@
         regexp: '^.*DocumentRoot /var/www/html.*$' 
         line: "        DocumentRoot /var/www/html/2TIN_ResearchProject" 
         state: present
+    - name: Create mount directory.
+      file:
+        path: /var/www/html/2TIN_ResearchProject/efs
+        mode: '0755'
+        state: directory
+    - name: Mount EFS in /etc/fstab.
+      lineinfile:
+          path: /etc/fstab
+          line: "{{ efs_id }}:/ /var/www/html/2TIN_ResearchProject/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
+    - name: mount EFS on /var/www/html/2TIN_ResearchProject/efs/.
+      shell: sleep 5; mount -a
+    - name: move assets to EFS.
+      command: mv /var/www/html/2TIN_ResearchProject/assets/ /var/www/html/2TIN_ResearchProject/efs/assets/
     - name: Enable mysqli extension in php.ini
       lineinfile: 
         path: /etc/php/7.4/apache2/php.ini 
@@ -90,6 +96,18 @@
         - { From: '^.*\$username = .*$', To: '    $username = "{{ dbusername }}";'}
         - { From: '^.*\$password = .*$', To: '    $password = "{{ dbpassword }}";'}
         - { From: '^.*\$dbName = .*$', To: '    $dbName = "employees";'}
+    - name: Update index.php with path to /var/www/html/2TIN_ResearchProject/efs/assets/.
+      lineinfile:
+        path: /var/www/html/2TIN_ResearchProject/index.php 
+        regexp: "{{ item.From }}"
+        line: "{{ item.To }}"
+        state: present
+      with_items:
+        - { From: '^.*<link rel="stylesheet" href="assets/css/bootstrap.min.css">.*$', To: '     <link rel="stylesheet" href="efs/assets/css/bootstrap.min.css">'}
+        - { From: '^.*<link rel="stylesheet" href="assets/css/style.css">.*$', To: '     <link rel="stylesheet" href="efs/assets/css/style.css">'}
+        - { From: '^.*images = scandir(.*);.*$', To: "        $images = scandir('/var/www/html/2TIN_ResearchProject/efs/assets/images');"}
+        - { From: '^.*echo "<img class=.* src=.*/></div>";.*$', To: "                echo \"<img class='d-block w-100' src='efs/assets/images/$image'/></div>\";"}
+        - { From: '^.*<script src="assets/js/bootstrap.min.js" ></script>.*$', To: '        <script src="efs/assets/js/bootstrap.min.js" ></script>'}
     - name: Install dependencies with composer
       shell: cd /var/www/html/2TIN_ResearchProject/; sudo composer install -n
     - name: dump autoload
