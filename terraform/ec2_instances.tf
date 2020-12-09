@@ -76,6 +76,7 @@ dbpassword: ${var.dbpassword}
 dbname: ${aws_db_instance.Webapp_db.name}
 efs_access_point_id: ${aws_efs_access_point.webservers_efs_access_point.id}
 efs_id: ${aws_efs_file_system.webservers_efs.id}
+bucket_url: https://${aws_s3_bucket.Webapp_s3_bucket.bucket_domain_name}
 EOF
     destination = "/home/ubuntu/tf_vars.yml"
 

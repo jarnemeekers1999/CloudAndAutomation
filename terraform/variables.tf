@@ -50,6 +50,14 @@ variable "images_folder" {
   default = "..\\assets\\images\\"
 }
 
+variable "css_folder" {
+  default = "..\\assets\\css\\"
+}
+
+variable "js_folder" {
+  default = "..\\assets\\js\\"
+}
+
 variable "access_key" {
    type = string
 }

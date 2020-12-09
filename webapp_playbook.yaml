@@ -68,17 +68,15 @@
         state: present
     - name: Create mount directory.
       file:
-        path: /var/www/html/2TIN_ResearchProject/efs
+        path: /mnt/efs
         mode: '0755'
         state: directory
     - name: Mount EFS in /etc/fstab.
       lineinfile:
           path: /etc/fstab
-          line: "{{ efs_id }}:/ /var/www/html/2TIN_ResearchProject/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
-    - name: mount EFS on /var/www/html/2TIN_ResearchProject/efs/.
+          line: "{{ efs_id }}:/ /mnt/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
+    - name: mount EFS on /mnt/efs/.
       shell: sleep 5; mount -a
-    - name: move assets to EFS.
-      command: mv /var/www/html/2TIN_ResearchProject/assets/ /var/www/html/2TIN_ResearchProject/efs/assets/
     - name: Enable mysqli extension in php.ini
       lineinfile: 
         path: /etc/php/7.4/apache2/php.ini 
@@ -96,18 +94,34 @@
         - { From: '^.*\$username = .*$', To: '    $username = "{{ dbusername }}";'}
         - { From: '^.*\$password = .*$', To: '    $password = "{{ dbpassword }}";'}
         - { From: '^.*\$dbName = .*$', To: '    $dbName = "employees";'}
-    - name: Update index.php with path to /var/www/html/2TIN_ResearchProject/efs/assets/.
+    - name: Create file with the name of the images in the s3 bucket.
+      file: 
+        path: /mnt/efs/image_names
+        mode: '0644'
+        state: touch
+    - name: Set image names in file /mnt/efs/image_names
+      lineinfile:
+        path: /mnt/efs/image_names
+        regexp: "{{ item.From }}"
+        line: "{{ item.To }}"
+        state: present
+      with_items:
+          - { From: '^$', To: 'fjords.jpg'}
+          - { From: '^$', To: 'nature.jpg'}
+          - { From: '^$', To: 'lights.jpg'}
+    - name: Update index.php with path to /mnt/efs.
       lineinfile:
         path: /var/www/html/2TIN_ResearchProject/index.php 
         regexp: "{{ item.From }}"
         line: "{{ item.To }}"
         state: present
       with_items:
-        - { From: '^.*<link rel="stylesheet" href="assets/css/bootstrap.min.css">.*$', To: '     <link rel="stylesheet" href="efs/assets/css/bootstrap.min.css">'}
-        - { From: '^.*<link rel="stylesheet" href="assets/css/style.css">.*$', To: '     <link rel="stylesheet" href="efs/assets/css/style.css">'}
-        - { From: '^.*images = scandir(.*);.*$', To: "        $images = scandir('/var/www/html/2TIN_ResearchProject/efs/assets/images');"}
-        - { From: '^.*echo "<img class=.* src=.*/></div>";.*$', To: "                echo \"<img class='d-block w-100' src='efs/assets/images/$image'/></div>\";"}
-        - { From: '^.*<script src="assets/js/bootstrap.min.js" ></script>.*$', To: '        <script src="efs/assets/js/bootstrap.min.js" ></script>'}
+        - { From: '^.*<link rel="stylesheet" href="assets/css/bootstrap.min.css">.*$', To: '     <link rel="stylesheet" href="{{ bucket_url }}/assets/css/bootstrap.min.css">'}
+        - { From: '^.*<link rel="stylesheet" href="assets/css/style.css">.*$', To: '     <link rel="stylesheet" href="{{ bucket_url }}/assets/css/style.css">'}
+        - { From: '^.*images = scandir(.*);.*$', To: "        $images = []; $file = fopen('/mnt/efs/image_names', 'r'); if ($file) { while (($line = fgets($file)) !== false) { $images[] = $line; } fclose($file);}"}
+        - { From: '^.*echo ($key == 2) ? .*<div class="carousel-item active">.* : .*<div class="carousel-item">.*;.*$', To: "                echo ($key == 0) ? '<div class=\"carousel-item active\">' : '<div class=\"carousel-item\">';"}
+        - { From: '^.*echo "<img class=.* src=.*/></div>";.*$', To: "                echo \"<img class='d-block w-100' src='{{ bucket_url }}/assets/images/$image'/></div>\";"}
+        - { From: '^.*<script src="assets/js/bootstrap.min.js" ></script>.*$', To: '        <script src="{{ bucket_url }}/assets/js/bootstrap.min.js" ></script>'}
     - name: Install dependencies with composer
       shell: cd /var/www/html/2TIN_ResearchProject/; sudo composer install -n
     - name: dump autoload

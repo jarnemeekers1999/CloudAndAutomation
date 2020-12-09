@@ -1,11 +1,6 @@
 Code opschonen
 Enkel bestanden behouden die effectief bijdragen aan de code
-Vaults implementeren
 Data sources in één bestand?
 playbook verder uitwerken
 Zorgen dat webserver aan S3 kan met lambda
-cloudwatch opzetten
-modules?
-alles op github zetten
-IAM (optioneel)
 Jarne public key wegdoen of laten werken
