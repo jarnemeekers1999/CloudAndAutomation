@@ -670,15 +670,6 @@ resource "aws_network_acl" "Database_private_subnet_1" {
     to_port         = 65535
   }
 
-  /*  			ingress {
-    protocol   = "tcp"
-    rule_no    = 130
-    action     = "allow"
-    ipv6_cidr_block = "::/0"
-    from_port  = 443
-    to_port    = 443
-  }*/
-
   # Allow Database_private_subnet_1d access to MySQL database
   egress {
     protocol   = "tcp"

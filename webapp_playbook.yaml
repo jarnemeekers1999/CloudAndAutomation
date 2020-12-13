@@ -69,14 +69,16 @@
     - name: Create mount directory.
       file:
         path: /mnt/efs
-        mode: '0755'
+        mode: '0777'
+        owner: ubuntu
+        group: ubuntu
         state: directory
     - name: Mount EFS in /etc/fstab.
       lineinfile:
           path: /etc/fstab
           line: "{{ efs_id }}:/ /mnt/efs efs _netdev,tls,accesspoint={{ efs_access_point_id }} 0 0"
     - name: mount EFS on /mnt/efs/.
-      shell: sleep 5; mount -a
+      shell: sleep 5; mount -a; chmod 777 /mnt/efs/;
     - name: Enable mysqli extension in php.ini
       lineinfile: 
         path: /etc/php/7.4/apache2/php.ini 
@@ -97,7 +99,9 @@
     - name: Create file with the name of the images in the s3 bucket.
       file: 
         path: /mnt/efs/image_names
-        mode: '0644'
+        mode: '0777'
+        owner: ubuntu
+        group: ubuntu
         state: touch
     - name: Set image names in file /mnt/efs/image_names
       lineinfile:

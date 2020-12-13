@@ -34,7 +34,7 @@ resource "aws_instance" "bastion_host" {
     }
   }
 
-    provisioner "file" {
+  provisioner "file" {
     content     = <<EOF
 [default]
 region = us-east-1
@@ -100,7 +100,7 @@ EOF
     }
   }
 
-provisioner "file" {
+  provisioner "file" {
     content     = <<EOF
   {
     "source_ami": "${data.aws_ami.ubuntu_ami.id}",

@@ -35,7 +35,7 @@ variable "Jonas_public_ssh_key" {
 }
 
 variable "Jonas_private_ssh_key_path" {
-  type = string 
+  type = string
 }
 
 variable "ssh_key_bastion_host_path" {
@@ -59,7 +59,7 @@ variable "js_folder" {
 }
 
 variable "access_key" {
-   type = string
+  type = string
 }
 
 variable "secret_key" {
