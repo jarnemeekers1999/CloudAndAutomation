@@ -26,19 +26,15 @@ variable "ssh_user" {
   default = "ubuntu"
 }
 
-variable "Jarne_public_ssh_key" {
+variable "public_ssh_key" {
   type = string
 }
 
-variable "Jonas_public_ssh_key" {
+variable "private_ssh_key_file_path" {
   type = string
 }
 
-variable "Jonas_private_ssh_key_path" {
-  type = string
-}
-
-variable "ssh_key_bastion_host_path" {
+variable "private_ssh_key_file_path_on_bastion_host" {
   type = string
 }
 
@@ -56,16 +52,4 @@ variable "css_folder" {
 
 variable "js_folder" {
   default = "..\\assets\\js\\"
-}
-
-variable "access_key" {
-  type = string
-}
-
-variable "secret_key" {
-  type = string
-}
-
-variable "session_token" {
-  type = string
 }

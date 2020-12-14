@@ -1,7 +1,4 @@
-1) Zorgen dat lambda file in efs update wanneer er een nieuwe image geupload wordt in de s3 bucket
+1) image resizer lambda
 2) Playbook beter maken
-3) Code opschonen
-4) Enkel bestanden behouden die effectief bijdragen aan de code
-5) Jarne public key wegdoen of laten werken
-6) [network load balancer met static ip voor alb]
-7) [readme]
+3) [network load balancer met static ip voor alb]
+4) [Hashicorp vault]

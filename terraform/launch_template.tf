@@ -29,7 +29,7 @@ resource "aws_launch_template" "webservers_launch_template" {
   instance_initiated_shutdown_behavior = "terminate"
 
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.ssh_Jonas.key_name
+  key_name      = aws_key_pair.ssh_keypair.key_name
 
   network_interfaces {
     associate_public_ip_address = false
